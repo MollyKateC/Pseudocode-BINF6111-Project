@@ -35,7 +35,21 @@ unless( -e $bisulfite_seq) {
 	#remove newlines
 	#join into one string
 	#explode string into an array
-	
+open (REFERENCE,$reference_seq) || die "The reference  file cannot be opened";
+my $seqA = <REFERENCE>;
+close (REFERENCE);
+
+open (BISUL,$bisulfite_seq) || die "This Bisulfite file cannot be opened";
+my $seqB = <BISUL>;
+close (BISUL);
+
+my $seq1=$seqA;
+my $seq2=$seqB;
+$seq1 =~ tr/acgt/ACGT/;
+$seq2 =~ tr/acgt/ACGT/;
+
+print $seq1;
+print $seq2;	
 #Search for CG regions
 	#foreach /C/ {
 	#	if( /GC/ | /CG/){}
@@ -64,7 +78,7 @@ unless( -e $bisulfite_seq) {
 	#Report Results of comparison in text file format? Spreadsheet?
 	
 			
-
+exit;
 
 
 
