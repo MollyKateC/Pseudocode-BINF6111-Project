@@ -7,15 +7,94 @@ use strict;
 ############################
 
 
+#Variables:
+my $reference_seq;
+my $bisulfite_seq;
+my @Refseq;
+my $Refseq;
+my @Bisseq;
+my $Bisseq;
+my @Refseqarray;
+my @Bisseqarray;
+
 #Ask user for reference sequence(list filetype?)
+print "Enter the Filename for the reference sequence: ";
+$reference_seq = <STDIN>;
+chomp $reference_seq;
+unless( -e $reference_seq) {
+	print "File \"$reference_seq\" does not seem to exist\n";
+	exit;
+}
+
 #Ask user for bisulfite treated sequence
+print "Enter the Filename for the bisulfite treated sequence: ";
+$bisulfite_seq = <STDIN>;
+chomp $bisulfite_seq;
+unless( -e $bisulfite_seq) {
+	print "File \"$bisulfite_seq\" does not seem to exist\n";
+	exit;
+}
+
 
 #store files in variable
+
+unless ( open(REFFILE, $reference_seq) ) {
+	print "Cannot open file \"$reference_seq\"\n";
+	exit;
+}
+
+@Refseq = <REFFILE>;
+close REFFILE;
+
+unless ( open(BISFILE, $bisulfite_seq) ) {
+	print "Cannot open file \"$bisulfite_seq\"\n";
+	exit;
+}
+
+@Bisseq = <BISFILE>;
+close BISFILE;
+
 #prepare files
 	#remove whitespace
 	#remove newlines
 	#join into one string
-	#explode string into an array
+
+$Refseq = join( '', @Refseq);
+$Bisseq = join( '', @Bisseq);
+
+$Refseq =~ s/\s//g;
+$Bisseq =~ s/\s//g;
+
+$Refseq =~ tr/actg/ACTG/;
+$Bisseq =~ tr/actg/ACTG/;
+
+
+#if ($Refseq eq $Bisseq) {
+#	print "equal\n";
+#} else {
+#	print "unequal\n";
+#}
+
+
+#string to array:
+@Refseqarray = split('',$Refseq);
+@Bisseqarray = split('',$Bisseq);
+
+if (@Refseqarray eq @Bisseqarray) {
+	print "equal\n";
+} else {
+	print "unequal\n";
+}
+
+#comparing sequences
+
+
+
+
+#print "$Refseq\n $Bisseq\n";			#run to test previous script
+
+
+	
 	
 #Search for CG regions
 	#foreach /C/ {
@@ -23,6 +102,10 @@ use strict;
 	# remove duplicated regions (i.e. GCG)
 	# 	else {}
 	# }
+	
+#my %hash;
+#$hash{$_}++ for (@);
+
 	
 #Store and report position of CG regions (file output)
 
@@ -45,9 +128,6 @@ use strict;
 	#Report Results of comparison in text file format? Spreadsheet?
 	
 			
-
-
-
 
 
 
