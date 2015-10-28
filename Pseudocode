@@ -6,9 +6,21 @@ use strict;
 ## Pseudocode for Project ##
 ############################
 
+
 #Variables:
 my $reference_seq;
 my $bisulfite_seq;
+my @Refseq;
+my $Refseq;
+my @Bisseq;
+my $Bisseq;
+my @Refseqarray;
+my @Bisseqarray;
+my @CCmatches;
+my @TCmatches;
+my $k;
+my $z;
+
 
 #Ask user for reference sequence(list filetype?)
 print "Enter the Filename for the reference sequence: ";
@@ -30,32 +42,108 @@ unless( -e $bisulfite_seq) {
 
 
 #store files in variable
+
+unless ( open(REFFILE, $reference_seq) ) {
+	print "Cannot open file \"$reference_seq\"\n";
+	exit;
+}
+
+@Refseq = <REFFILE>;
+close REFFILE;
+
+unless ( open(BISFILE, $bisulfite_seq) ) {
+	print "Cannot open file \"$bisulfite_seq\"\n";
+	exit;
+}
+
+@Bisseq = <BISFILE>;
+close BISFILE;
+
 #prepare files
 	#remove whitespace
 	#remove newlines
 	#join into one string
-	#explode string into an array
-open (REFERENCE,$reference_seq) || die "The reference  file cannot be opened";
-my $seqA = <REFERENCE>;
-close (REFERENCE);
 
-open (BISUL,$bisulfite_seq) || die "This Bisulfite file cannot be opened";
-my $seqB = <BISUL>;
-close (BISUL);
+$Refseq = join( '', @Refseq);
+$Bisseq = join( '', @Bisseq);
 
-my $seq1=$seqA;
-my $seq2=$seqB;
-$seq1 =~ tr/acgt/ACGT/;
-$seq2 =~ tr/acgt/ACGT/;
+$Refseq =~ s/\s//g;
+$Bisseq =~ s/\s//g;
 
-print $seq1;
-print $seq2;	
+$Refseq =~ tr/actg/ACTG/;
+$Bisseq =~ tr/actg/ACTG/;
+
+
+#if ($Refseq eq $Bisseq) {
+#	print "equal\n";
+#} else {
+#	print "unequal\n";
+#}
+
+
+#string to array:
+@Refseqarray = split('',$Refseq);
+@Bisseqarray = split('',$Bisseq);
+
+
+
+
+
+####Looking for areas of CC matching
+$k=0;
+
+for (my $i=0; $i < scalar (@Refseqarray); $i++)
+{
+    if ($Refseqarray[$i] eq "C" && $Bisseqarray[$i] eq "C")
+    {$CCmatches[$k] = $i;$k++;
+    }
+}
+
+
+my $CC = join (',',@CCmatches);
+print "\n C\'s match C\'s $CC \n\n";
+
+
+####Looking for regions with TC matches
+$z=0;
+
+for (my $y=0; $y < scalar(@Refseqarray);$y++)
+{
+   if ($Refseqarray[$y] eq "C" && $Bisseqarray[$y] eq "T")
+   {$TCmatches[$z] = $y;$z++;
+    }
+}
+my $TC = join (',',@TCmatches);
+print " T\'s match C\'s $TC \n";
+
+
+
+#if (@Refseqarray eq @Bisseqarray) {
+#	print "equal\n";
+#} else {
+#	print "unequal\n";
+#}
+
+#comparing sequences
+
+
+
+
+#print "$Refseq\n $Bisseq\n";			#run to test previous script
+
+
+	
+	
 #Search for CG regions
 	#foreach /C/ {
 	#	if( /GC/ | /CG/){}
 	# remove duplicated regions (i.e. GCG)
 	# 	else {}
 	# }
+	
+#my %hash;
+#$hash{$_}++ for (@);
+
 	
 #Store and report position of CG regions (file output)
 
@@ -78,7 +166,14 @@ print $seq2;
 	#Report Results of comparison in text file format? Spreadsheet?
 	
 			
-exit;
+
+
+
+
+
+
+
+
 
 
 
