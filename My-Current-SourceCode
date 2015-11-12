@@ -1,0 +1,167 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+######################################
+## Source Code for Semester Project ##
+######################################
+
+#####################
+## CONTRIBUTERS:   ##
+##                 ##
+## JING CHEN       ##
+## MOLLY CROWDER   ##
+## YU-HUNG HUNG    ##
+## SAMANTHA KAISER ##
+## SATYA UPPUGANTI ##
+#####################
+
+#Variables:
+my $reference_seq;
+my $bisulfite_seq;
+my @Refseq;
+my $Refseq;
+my @Bisseq;
+my $Bisseq;
+my @Refseqarray;
+my @Bisseqarray;
+my @CCmatches;
+my @TCmatches;
+my $k;
+my $z;
+my $outputfile;
+
+
+## Ask user for reference sequence
+
+print "Enter the Filename for the reference sequence: ";
+$reference_seq = <STDIN>;
+chomp $reference_seq;
+unless( -e $reference_seq) {
+	print "File \"$reference_seq\" does not seem to exist\n";
+	exit;
+}
+
+## Ask user for bisulfite treated sequence
+print "Enter the Filename for the bisulfite treated sequence: ";
+$bisulfite_seq = <STDIN>;
+chomp $bisulfite_seq;
+unless( -e $bisulfite_seq) {
+	print "File \"$bisulfite_seq\" does not seem to exist\n";
+	exit;
+}
+
+
+## store files in variable
+
+unless ( open(REFFILE, $reference_seq) ) {
+	print "Cannot open file \"$reference_seq\"\n";
+	exit;
+}
+
+@Refseq = <REFFILE>;
+close REFFILE;
+
+unless ( open(BISFILE, $bisulfite_seq) ) {
+	print "Cannot open file \"$bisulfite_seq\"\n";
+	exit;
+}
+
+@Bisseq = <BISFILE>;
+close BISFILE;
+
+##prepare files
+	##remove whitespace
+	##remove newlines
+	##join into one string
+
+$Refseq = join( '', @Refseq);
+$Bisseq = join( '', @Bisseq);
+
+$Refseq =~ s/\s//g;
+$Bisseq =~ s/\s//g;
+
+$Refseq =~ tr/actg/ACTG/;
+$Bisseq =~ tr/actg/ACTG/;
+
+
+## string to array:
+
+@Refseqarray = split('',$Refseq);
+@Bisseqarray = split('',$Bisseq);
+
+
+#### Looking for areas of CC matching ####
+
+
+$k=0;
+
+for (my $i=0; $i < scalar (@Refseqarray); $i++)
+{
+    if ($Refseqarray[$i] eq "C" && $Bisseqarray[$i] eq "C")
+    {$CCmatches[$k] = $i;$k++;
+    }
+}
+
+
+my $CC = join (",",@CCmatches);				
+print "\n C\'s match C\'s:\n $CC \n\n";
+
+
+#### Looking for regions with TC matches ####
+
+$z=0;
+
+for (my $y=0; $y < scalar(@Refseqarray);$y++)
+{
+   if ($Refseqarray[$y] eq "C" && $Bisseqarray[$y] eq "T")
+   {$TCmatches[$z] = $y;$z++;
+    }
+}
+my $TC = join (",",@TCmatches);				
+print " T\'s match C\'s:\n $TC \n\n";
+
+
+
+
+##Correcting Length of Shorter File
+
+if(scalar@TCmatches<scalar@CCmatches){		
+	print "TCmatches is shorter than CCmatches\n\n";
+	do{	my$m=scalar @TCmatches;
+		$TCmatches[$m]="NA";		#R ignores NA when graphing and computing
+		}while(scalar@TCmatches<scalar@CCmatches);
+	print "@TCmatches\n\n";
+	print "@CCmatches\n\n";
+	}
+	
+if(scalar @CCmatches<scalar@TCmatches){
+	print "TCmatches is longer than CCmatches\n\n";
+	do{	my$m=scalar @CCmatches;
+		$CCmatches[$m]="NA";
+		}while(scalar@CCmatches<scalar@TCmatches);
+	print @CCmatches;
+	}
+
+##Export Data as Two Files
+
+my $outputfile = 'MethylatedReport.txt';	#leave variables unchanged
+open(my $fh, '>', $outputfile) || die "Could not open file '$outputfile'";
+print $fh "@CCmatches\n\n";
+close $fh;
+
+my $outputfile2 = 'UnmethylatedReport.txt';
+open($fh, '>', $outputfile2) || die "Could not open file '$outputfile2'";
+print $fh "@TCmatches\n\n";
+close $fh;
+
+
+
+
+
+
+exit;
+
+
+
+
